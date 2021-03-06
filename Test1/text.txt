@@ -4,4 +4,5 @@ słonecznie
 nie zimno
 gorąco
 wysoka temperatura
-ostatnia linia
+ostatnia linia v2
+
