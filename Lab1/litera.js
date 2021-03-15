@@ -46,7 +46,7 @@ window.onload = function(){
 		if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) alert("Could not initialise shaders");  //Sprawdzenie ewentualnych błedów
 
 		//Opis sceny 3D, położenie punktów w przestrzeni 3D w formacie X,Y,Z 
-		/*let vertexPosition = [
+		let vertexPosition = [
 			//Top
 				-2.0, +2.0, -0.0,  -2.0, -1.75 , +0.0,  -1.25, +2.0, +0.0, //3 punkty po 3 składowe - X1,Y1,Z1, X2,Y2,Z2, X3,Y3,Z3 - 1 trójkąt
 				-1.25, -1.75, -0.0,  -2.0, -1.75 , +0.0,  -1.25, +2.0, +0.0,
@@ -64,9 +64,9 @@ window.onload = function(){
 
 				+0.25, -1, -0.0,  -0.5, -1.75 , +0.0,  -0.5, -1.0, +0.0,
 
-			]*/
+			]
 
-			let vertexPosition = [
+			/*let vertexPosition = [
 				//Top
 					-1.0, +1.0, -1.0,  -1.0, +1.0, +1.0,  +1.0, +1.0, +1.0, //3 punkty po 3 składowe - X1,Y1,Z1, X2,Y2,Z2, X3,Y3,Z3 - 1 trójkąt
 					-1.0, +1.0, -1.0,  +1.0, +1.0, +1.0,  +1.0, +1.0, -1.0,
@@ -85,7 +85,7 @@ window.onload = function(){
 				//Bottom
 					-1.0, -1.0, +1.0,  -1.0, -1.0, -1.0,  +1.0, -1.0, +1.0,
 					+1.0, -1.0, +1.0,  -1.0, -1.0, -1.0,  +1.0, -1.0, -1.0
-				]
+				]*/
 
 			let vertexPositionBuffer = gl.createBuffer(); //Stworzenie tablicy w pamieci karty graficznej
 			gl.bindBuffer(gl.ARRAY_BUFFER, vertexPositionBuffer);
@@ -112,6 +112,7 @@ window.onload = function(){
 		0,0,1,0.0,
 		0,0,-5,1 //Położenie kamery
 		];
+
 
 		//Render Scene
 		gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight); 
