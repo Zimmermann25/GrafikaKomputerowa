@@ -113,7 +113,6 @@ window.onload = function(){
 		0,0,-5,1 //Położenie kamery
 		];
 
-
 		//Render Scene
 		gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight); 
 		gl.clearColor(1.0,0.0,0.0,1.0); //Wyczyszczenie obrazu kolorem czerwonym
