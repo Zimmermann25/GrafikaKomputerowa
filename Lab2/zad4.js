@@ -247,24 +247,24 @@ window.onload = function(){
 		
 		//Opis sceny 3D, kolor każdego z wierzchołków
 		let vertexColor = [
-		//Top
-			1.0, 0.2, 0.4,  1.0, 0.3, 0.3,  1.0, 0.3, 0.3, //3 punkty po 3 składowe - R1,G1,B1, R2,G2,B2, R3,G3,B3 - 1 trójkąt
-			1.0, 0.2, 0.4,  1.0, 0.3, 0.3,  1.0, 0.3, 0.3,
-		//Left
-			0.0, 1.0, 0.0,  0.0, 1.0, 0.0,  0.0, 1.0, 0.0,
-			0.0, 1.0, 0.0,  0.0, 1.0, 0.0,  0.0, 1.0, 0.0,
-		//Right
-			0.0, 0.0, 1.0,  0.0, 0.0, 1.0,  0.0, 0.0, 1.0,
-			0.0, 0.0, 1.0,  0.0, 0.0, 1.0,  0.0, 0.0, 1.0,
-		//Front
-			1.0, 1.0, 0.0,  1.0, 1.0, 0.0,  1.0, 1.0, 0.0,
-			1.0, 1.0, 0.0,  1.0, 1.0, 0.0,  1.0, 1.0, 0.0,
-		//Back
-			1.0, 0.0, 1.0,  1.0, 0.0, 1.0,  1.0, 0.0, 1.0,
-			1.0, 0.0, 1.0,  1.0, 0.0, 1.0,  1.0, 0.0, 1.0,
-		//Bottom
-			0.0, 1.0, 1.0,  0.0, 1.0, 1.0,  0.0, 1.0, 1.0,
-			0.0, 1.0, 1.0,  0.0, 1.0, 1.0,  0.0, 1.0, 1.0,
+			//Top
+			1,1,1,			1,1,1,			1,1,1, // podłoga
+			1,1,1,			1,1,1,			1,1,1,
+			//Left
+			0,0,0,			0,0,0,			0,0,0,
+			0,0,0,			0,0,0,			0,0,0,
+
+			0,0,0,			0,0,0,			0,0,0,
+			0,0,0,			0,0,0,			0,0,0,
+		
+			1,1,1,			1,1,1,			1,1,1, // podłoga
+			1,1,1,			1,1,1,			1,1,1,
+		
+			0,0,0,			0,0,0,			0,0,0,
+			0,0,0,			0,0,0,			0,0,0,
+		
+			0,0,0,			0,0,0,			0,0,0,
+			0,0,0,			0,0,0,			0,0,0,
 
 			0,0,0,			0,0,0,			0,0,0,
 			0,0,0,			0,0,0,			0,0,0,
@@ -464,13 +464,15 @@ window.onload = function(){
 
 			
 			
-
-		uMVMatrix = MatrixMul(uMVMatrix,uMVRotX);
-		uMVMatrix = MatrixMul(uMVMatrix,uMVRotY);
 		uMVMatrix = MatrixMul(uMVMatrix,uMVRotZ);
+		uMVMatrix = MatrixMul(uMVMatrix,uMVTranslateZ);
+		
+		
+		uMVMatrix = MatrixMul(uMVMatrix,uMVRotX);
 		uMVMatrix = MatrixMul(uMVMatrix,uMVTranslateX);
-			uMVMatrix = MatrixMul(uMVMatrix,uMVTranslateY);
-			uMVMatrix = MatrixMul(uMVMatrix,uMVTranslateZ);
+
+		uMVMatrix = MatrixMul(uMVMatrix,uMVRotY);
+		uMVMatrix = MatrixMul(uMVMatrix,uMVTranslateY);
 		
 		
 		
@@ -515,12 +517,45 @@ window.onload = function(){
 	if(e.keyCode==65) angleY=angleY-1.0; // A
 	if(e.keyCode==81) angleZ=angleZ+1.0;
 	if(e.keyCode==69) angleZ=angleZ-1.0;
-	if(e.keyCode==73) tz +=0.3; // I
-	if(e.keyCode==74) tx +=0.3; // J
-	if(e.keyCode==75) tz -=0.3; // K
-	if(e.keyCode==76) tx -=0.3; // L
-	if(e.keyCode==85) ty -=0.3; // U
-	if(e.keyCode==79) ty +=0.3; // O
+
+	//modulo z kątów, by zawsze były w zakresie 0-360, pomocne w obrotach i sterowaniu, szczególnie dla osi Y
+	//angleX = (angleX+360) % 360;
+	angleY = (angleY+360) % 360;
+	//angleZ = (angleZ+360) % 360;
+
+	if(e.keyCode==73){//I
+		tz = tz + Math.cos(angleY*Math.PI/180.0)*0.1;
+  	tx = tx - Math.sin(angleY*Math.PI/180.0)*0.1;
+	} 
+	if(e.keyCode==74) {//J
+		if((angleY>=45 && angleY <=135) || (angleY >=225 && angleY <=315)){
+			tx = tx - Math.cos(angleY*Math.PI/180.0)*0.1;
+			tz = tz + Math.sin(angleY*Math.PI/180.0)*0.1;
+			
+		}else{
+			tx = tx + Math.cos(angleY*Math.PI/180.0)*0.1;
+			tz = tz - Math.sin(angleY*Math.PI/180.0)*0.1;
+		}
+		
+	 }
+	if(e.keyCode==75) {//K
+		tz = tz - Math.cos(angleY*Math.PI/180.0)*0.1;
+		tx = tx + Math.sin(angleY*Math.PI/180.0)*0.1;
+	 } 
+	 if(e.keyCode==76) {//L
+		if( (angleY>=45 && angleY <=135) || (angleY >=225 && angleY <=315) ){
+			console.log("L firstif");
+			tx = tx + Math.cos(angleY*Math.PI/180.0)*0.1;
+			tz = tz - Math.sin(angleY*Math.PI/180.0)*0.1;
+		}
+		else{ //(angleY>=0 && angleY <=45)
+			tx = tx - Math.cos(angleY*Math.PI/180.0)*0.1;
+			tz = tz + Math.sin(angleY*Math.PI/180.0)*0.1;
+		}
+		
+	 }
+	if(e.keyCode==85) ty -=0.1; // U
+	if(e.keyCode==79) ty +=0.1; // O
 	
 	console.log("tx: ", tx, "ty: ", ty, "tz: ", tz, "anX: ", angleX, "angY: ", angleY, "angZ: ", angleZ);
 	}
