@@ -391,7 +391,7 @@ window.onload = function(){
 		
 		//Macierze opisujące położenie wirtualnej kamery w przestrzenie 3D
 		let aspect = gl.viewportWidth/gl.viewportHeight;
-		let fov = 140.0 * Math.PI / 180.0; //Określenie pola widzenia kamery
+		let fov = 90.0 * Math.PI / 180.0; //Określenie pola widzenia kamery
 		let zFar = 100.0; //Ustalenie zakresów renderowania sceny 3D (od obiektu najbliższego zNear do najdalszego zFar)
 		let zNear = 0.1;
 		uPMatrix = [
@@ -504,6 +504,9 @@ window.onload = function(){
 		setTimeout(Tick,100);
 	}
 	
+	var startAngleX = 0;
+	var startAngleY = 0;
+	var startAngleZ = 0;
 	function handlekeydown(e)
 	{
 		console.log("keydown");
@@ -511,47 +514,32 @@ window.onload = function(){
 	if(e.keyCode==83) angleX=angleX-1.0; //S
 	if(e.keyCode==68){
 		angleY=angleY+1.0;	//D
-		//tx -= 2*Math.PI/180;
-		//tz -= 0.1*Math.PI/180;
 	} 
 	if(e.keyCode==65) angleY=angleY-1.0; // A
 	if(e.keyCode==81) angleZ=angleZ+1.0;
 	if(e.keyCode==69) angleZ=angleZ-1.0;
 
-	//modulo z kątów, by zawsze były w zakresie 0-360, pomocne w obrotach i sterowaniu, szczególnie dla osi Y
-	//angleX = (angleX+360) % 360;
-	angleY = (angleY+360) % 360;
-	//angleZ = (angleZ+360) % 360;
-
 	if(e.keyCode==73){//I
+		tx = tx - Math.sin(angleY*Math.PI/180.0)*0.1;
 		tz = tz + Math.cos(angleY*Math.PI/180.0)*0.1;
-  	tx = tx - Math.sin(angleY*Math.PI/180.0)*0.1;
 	} 
 	if(e.keyCode==74) {//J
-		if((angleY>=45 && angleY <=135) || (angleY >=225 && angleY <=315)){
-			tx = tx - Math.cos(angleY*Math.PI/180.0)*0.1;
-			tz = tz + Math.sin(angleY*Math.PI/180.0)*0.1;
-			
-		}else{
-			tx = tx + Math.cos(angleY*Math.PI/180.0)*0.1;
-			tz = tz - Math.sin(angleY*Math.PI/180.0)*0.1;
-		}
+		//metoda prób i błędów, więc nie wiem, czy dobrze rozumuje
+		//obrót wokół osi OY o kąt angle sprawia, że chcąc sie przemieścić w lewo w stosunku do nowego kierunku na prost muszę się przesunąć o 180-angleY na osi XZ
+		//ale kierunek na wprost i do tyłu(I, K) w nowym układzie odniesienia to samo angleY
+		//cos(pi-a) = -cosa,	cos(pi+a) = cosa,		sin(pi-a) = sina,		sin(pi+a) = -sina
+		tx = tx + Math.cos(angleY*Math.PI/180.0)*0.1;//albo tx - Math.cos((180-angleY)*Math.PI/180.0)*0.1;
+		tz = tz + Math.sin(angleY*Math.PI/180.0)*0.1;
 		
 	 }
 	if(e.keyCode==75) {//K
-		tz = tz - Math.cos(angleY*Math.PI/180.0)*0.1;
 		tx = tx + Math.sin(angleY*Math.PI/180.0)*0.1;
+		tz = tz - Math.cos(angleY*Math.PI/180.0)*0.1;
 	 } 
 	 if(e.keyCode==76) {//L
-		if( (angleY>=45 && angleY <=135) || (angleY >=225 && angleY <=315) ){
-			console.log("L firstif");
-			tx = tx + Math.cos(angleY*Math.PI/180.0)*0.1;
-			tz = tz - Math.sin(angleY*Math.PI/180.0)*0.1;
-		}
-		else{ //(angleY>=0 && angleY <=45)
-			tx = tx - Math.cos(angleY*Math.PI/180.0)*0.1;
-			tz = tz + Math.sin(angleY*Math.PI/180.0)*0.1;
-		}
+		tx = tx - Math.cos(angleY*Math.PI/180.0)*0.1;
+		tz = tz - Math.sin(angleY*Math.PI/180.0)*0.1;
+
 		
 	 }
 	if(e.keyCode==85) ty -=0.1; // U
