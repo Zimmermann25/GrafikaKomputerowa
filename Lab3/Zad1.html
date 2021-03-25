@@ -1,0 +1,456 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Lab3 Planety</title>
+<script type="text/javascript">
+var gl;
+var shaderProgram;
+var uPMatrix;
+var vertexPositionBuffer;
+var vertexColorBuffer;
+
+function createWallConstX(x, y, y1, z, z1){
+  return [
+        x,y,z1,     x,y,z,      x,y1,z, // podstawa, trójkąt dolny
+        x,y,z1,     x,y1,z1,    x,y1,z,
+  ];
+}
+
+function createWallConstY(y, x, x1, z, z1){
+  return [
+      x,y,z,    x1,y,z,     x1,y,z1,//podstawa, trójkąt dolny
+      x,y,z,    x,y,z1,     x1,y,z1, //podstawa, trójkąt górny
+  ];
+}
+
+function createWallConstZ(z, x, x1, y, y1){
+  return [
+      x,y,z,    x1,y,z,     x1,y1,z,//przód, trójkąt dolny
+      x,y,z,    x,y1,z,     x1,y1,z,
+  ]
+}
+
+function generateCuboid(x, x1, y, y1, z, z1){
+  //lewy x, prawy x, dolny y, górny y, blisko, daleko
+  //kolejnośćwierzchołków lewo->prawy, dół->góra, blicko->daleko
+
+  return [
+    //z< z1, z jest na daleko, a z1 na blisko przy wywołaniu, uważać na to
+    ...createWallConstZ(z1, x, x1, y, y1), // front
+    ...createWallConstZ(z, x, x1, y, y1), // back
+    ...createWallConstY(y, x, x1, z, z1), //bottom
+    ...createWallConstY(y1, x, x1, z, z1),//top
+    ...createWallConstX(x, y, y1, z, z1), // left
+    ...createWallConstX(x1, y, y1, z, z1),//right
+  ]
+}
+
+//row oznacza wiersz z którego wybieram teksturę do aktualnej planety, col i curCol liczone od 0
+function putWholeImageOnCube(curCol, cols=9){
+  //wazna kolejność, zdjecie na każdym boku zawsze poprawnie wyświetlone na ekranie(na wprost użytkownika), tak jak oryginalne zdjęcie
+  //generalnie nigdy idealnie nie będzie, bo zawsze przy którymś obrocie tekstura obrazka będzie do góry nogami
+  return [
+      0, (curCol+1)/cols,       1/6, (curCol+1)/cols,    1/6, (curCol+0)/cols, //front dolny trojkąt
+      0, (curCol+1)/cols,       0, (curCol+0)/cols,    1/6, (curCol+0)/cols, //front gorny trojkąt
+
+      1/6, (curCol+1)/cols,    2/6, (curCol+1)/cols,    2/6, (curCol+0)/cols, //back dolny trojkąt
+      1/6, (curCol+1)/cols,    1/6, (curCol+0)/cols,    2/6, (curCol+0)/cols, //back gorny trojkąt
+
+      2/6, (curCol+1)/cols,    3/6, (curCol+1)/cols,    3/6, (curCol+0)/cols, //bottom dolny trojkąt
+      2/6, (curCol+1)/cols,    2/6, (curCol+0)/cols,    3/6, (curCol+0)/cols, //bottom gorny trojkąt
+
+      3/6, (curCol+0)/cols,    4/6, (curCol+0)/cols,    4/6, (curCol+1)/cols, //top dolny trojkąt
+      3/6, (curCol+0)/cols,    3/6, (curCol+1)/cols,    4/6, (curCol+1)/cols, //top gorny trojkąt
+
+      5/6, (curCol+1)/cols,    4/6, (curCol+1)/cols,    4/6, (curCol+0)/cols, //left dolny trojkąt
+      5/6, (curCol+1)/cols,    5/6, (curCol+0)/cols,    4/6, (curCol+0)/cols, //left gorny trojkąt
+
+      5/6, (curCol+1)/cols,    1, (curCol+1)/cols,    1, (curCol+0)/cols, //right dolny trojkąt
+      5/6, (curCol+1)/cols,    5/6, (curCol+0)/cols,    1, (curCol+0)/cols, //right gorny trojkąt
+  ]
+}
+
+//kolejność tekstur zdjęcia to front, back, bottom, top, left, right
+
+function MatrixMul(a,b) //Mnożenie macierzy
+{
+  c = [
+  0,0,0,0,
+  0,0,0,0,
+  0,0,0,0,
+  0,0,0,0
+  ]
+  for(let i=0;i<4;i++)
+  {
+    for(let j=0;j<4;j++)
+    {
+      c[i*4+j] = 0.0;
+      for(let k=0;k<4;k++)
+      {
+        c[i*4+j]+= a[i*4+k] * b[k*4+j];
+      }
+    }
+  }
+  return c;
+}
+
+function startGL() 
+  {
+    let canvas = document.getElementById("canvas3D"); //wyszukanie obiektu w strukturze strony 
+    gl = canvas.getContext("experimental-webgl"); //pobranie kontekstu OpenGL'u z obiektu canvas
+    gl.viewportWidth = canvas.width; //przypisanie wybranej przez nas rozdzielczości do systemu OpenGL
+    gl.viewportHeight = canvas.height;
+
+    //Kod shaderów
+    const vertextShaderSource = ` //Znak akcentu z przycisku tyldy - na lewo od przycisku 1 na klawiaturze
+      precision highp float;
+      attribute vec3 aVertexPosition; 
+      attribute vec3 aVertexColor;
+      attribute vec2 aVertexCoords;
+      uniform mat4 uMVMatrix;
+      uniform mat4 uPMatrix;
+      varying vec3 vColor;
+      varying vec2 vTexUV;
+      void main(void) {
+        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0); //Dokonanie transformacji położenia punktów z przestrzeni 3D do przestrzeni obrazu (2D)
+        vColor = aVertexColor;
+        vTexUV = aVertexCoords;
+      }
+    `;
+    const fragmentShaderSource = `
+      precision highp float;
+      varying vec3 vColor;
+      varying vec2 vTexUV;
+      uniform sampler2D uSampler;
+      void main(void) {
+        //gl_FragColor = vec4(vColor,1.0); //Ustalenie stałego koloru wszystkich punktów sceny
+        gl_FragColor = texture2D(uSampler,vTexUV) * vec4(vColor,1.0); //Odczytanie punktu tekstury i przypisanie go jako koloru danego punktu renderowaniej figury
+      }
+    `;
+    let fragmentShader = gl.createShader(gl.FRAGMENT_SHADER); //Stworzenie obiektu shadera 
+    let vertexShader   = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(fragmentShader, fragmentShaderSource); //Podpięcie źródła kodu shader
+    gl.shaderSource(vertexShader, vertextShaderSource);
+    gl.compileShader(fragmentShader); //Kompilacja kodu shader
+    gl.compileShader(vertexShader);
+    if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) { //Sprawdzenie ewentualnych błedów kompilacji
+      alert(gl.getShaderInfoLog(fragmentShader));
+      return null;
+    }
+    if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+      alert(gl.getShaderInfoLog(vertexShader));
+      return null;
+    }
+
+    shaderProgram = gl.createProgram(); //Stworzenie obiektu programu 
+    gl.attachShader(shaderProgram, vertexShader); //Podpięcie obu shaderów do naszego programu wykonywanego na karcie graficznej
+    gl.attachShader(shaderProgram, fragmentShader);
+    gl.linkProgram(shaderProgram);
+    if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) alert("Could not initialise shaders");  //Sprawdzenie ewentualnych błedów
+
+    //opis sceny 3D
+    var earthSize = 1; //wielkosc odniesienia
+    var sunSize = 3*earthSize;
+    var mercurySize = 0.5 * earthSize;
+    var venusSize = 0.90 * earthSize;
+    var marsSize = 0.6 * earthSize;
+    var jupiterSize = 2.5 * earthSize;
+    var saturnSize = 2 * earthSize;
+    var uranusSize = 1.3*earthSize;
+    var neptuneSize = 1.3 * earthSize;
+
+    var sunPos = -5;
+    var mercuryDist = sunPos + sunSize + 0.387;
+    var venusDist = mercuryDist + mercurySize + 0.723;
+    var earthDist = venusDist + venusSize + 1;
+    var marsDist = earthDist + earthSize + 1.52;
+    var jupiterDist = marsDist + marsSize + 2;
+    var saturnDist = jupiterDist + jupiterSize + 2;
+    var uranusDist = saturnDist + saturnSize + 2;
+    var neptuneDist = uranusDist + uranusSize + 2;
+
+    let vertexPosition = [
+      ...generateCuboid(sunPos - sunSize/2, sunPos + sunSize/2,  -sunSize/2, sunSize/2,  -sunSize/2, sunSize/2),//sun
+      ...generateCuboid(mercuryDist -mercurySize/2, mercuryDist + mercurySize/2,  -mercurySize/2, mercurySize/2,   -mercurySize/2, mercurySize/2   ),//mercury
+
+      ...generateCuboid(venusDist - venusSize/2, venusDist + venusSize/2,  -venusSize/2, venusSize/2,  -venusSize/2, venusSize/2),//venus
+      ...generateCuboid(earthDist - earthSize/2, earthDist + earthSize/2,  -earthSize/2, earthSize/2,   -earthSize/2, earthSize/2   ),//earth
+
+      ...generateCuboid(marsDist - marsSize/2, marsDist + marsSize/2,  -marsSize/2, marsSize/2,  -marsSize/2, marsSize/2),//mars
+      ...generateCuboid(jupiterDist - jupiterSize/2, jupiterDist + jupiterSize/2,  -jupiterSize/2, jupiterSize/2,   -1, 1   ),//jupiter
+
+      ...generateCuboid(saturnDist - saturnSize/2, saturnDist + saturnSize/2,  -saturnSize/2, saturnSize/2,  -saturnSize/2, saturnSize/2),//saturn
+      ...generateCuboid(uranusDist - uranusSize/2, uranusDist + uranusSize/2,  -uranusSize/2, uranusSize/2,   -uranusSize/2, uranusSize/2   ),//uranus
+
+      ...generateCuboid(neptuneDist - neptuneSize/2, neptuneDist + neptuneSize/2,  -neptuneSize/2, neptuneSize/2,   -neptuneSize/2, neptuneSize/2   ),//neptune
+    ];
+
+    curNumItems = 108;
+
+    vertexPositionBuffer = gl.createBuffer(); //Stworzenie tablicy w pamieci karty graficznej
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexPositionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexPosition), gl.STATIC_DRAW);
+    vertexPositionBuffer.itemSize = 3; //zdefiniowanie liczby współrzednych per wierzchołek
+    vertexPositionBuffer.numItems = curNumItems; //Zdefinoiowanie liczby punktów w naszym buforze
+
+    //Opis sceny 3D, kolor każdego z wierzchołków
+    let vertexColor = [];
+    for(var i=0; i<curNumItems * 9; i++){ //9, bo dla każdego wierzchołka 3 składowe rgb, razy 3, bo 3wierzcholki=1trójkąt, czyli 9rgb, by pokryć trójkąt
+      vertexColor.push(1);
+    }
+    console.log(vertexColor);
+
+    vertexColorBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexColorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexColor), gl.STATIC_DRAW);
+    vertexColorBuffer.itemSize = 3;
+    vertexColorBuffer.numItems = curNumItems;
+
+    let vertexCoords = [//kolejnośćbardzo ważna tutaj, odpowiedniemu wierzchołkowi z vertexPosition, trzeba przyporządkować odpowiedni wierzchołek zdjęcia
+    ...putWholeImageOnCube(0),//sun
+    ...putWholeImageOnCube(1), //mercury
+    ...putWholeImageOnCube(2),//venus
+    ...putWholeImageOnCube(3), //earth
+    ...putWholeImageOnCube(4),//mars
+    ...putWholeImageOnCube(5), //jupiter
+    ...putWholeImageOnCube(6),//saturn
+    ...putWholeImageOnCube(7), //uranus
+    ...putWholeImageOnCube(8),//neptune
+
+    ];
+
+    vertexCoordsBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexCoordsBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexCoords), gl.STATIC_DRAW);
+    vertexCoordsBuffer.itemSize = 2;
+    vertexCoordsBuffer.numItems = curNumItems;
+
+    textureBuffer = gl.createTexture();
+    var textureImg = new Image();
+    textureImg.onload = function() { //Wykonanie kodu automatycznie po załadowaniu obrazka
+      
+      gl.bindTexture(gl.TEXTURE_2D, textureBuffer);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, textureImg); //Faktyczne załadowanie danych obrazu do pamieci karty graficznej
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); //Ustawienie parametrów próbkowania tekstury
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    }
+    textureImg.src="fullFlat.jpg"; //Nazwa obrazka
+
+    //Macierze opisujące położenie wirtualnej kamery w przestrzenie 3D
+    let aspect = gl.viewportWidth/gl.viewportHeight;
+    let fov = 45.0 * Math.PI / 180.0; //Określenie pola widzenia kamery
+    let zFar = 100.0; //Ustalenie zakresów renderowania sceny 3D (od obiektu najbliższego zNear do najdalszego zFar)
+    let zNear = 0.1;
+    uPMatrix = [
+    1.0/(aspect*Math.tan(fov/2)),0                           ,0                         ,0                            ,
+    0                         ,1.0/(Math.tan(fov/2))         ,0                         ,0                            ,
+    0                         ,0                           ,-(zFar+zNear)/(zFar-zNear)  , -1,
+    0                         ,0                           ,-(2*zFar*zNear)/(zFar-zNear) ,0.0,
+    ];
+
+    Tick();
+  } 
+
+  //let angle = 45.0; //Macierz transformacji świata - określenie położenia kamery
+  var angleZ = 0.0;
+  var angleY = 0.0;
+  var angleX = 0.0;
+  var tz = -18.0;
+  var tx = -6;
+  var ty = 0;
+
+  function Tick()
+  {  
+    let uMVMatrix = [
+    1,0,0,0, //Macierz jednostkowa
+    0,1,0,0,
+    0,0,1,0,
+    0,0,0,1
+    ];
+
+    let uMVRotZ = [
+    +Math.cos(angleZ*Math.PI/180.0),+Math.sin(angleZ*Math.PI/180.0),0,0,
+    -Math.sin(angleZ*Math.PI/180.0),+Math.cos(angleZ*Math.PI/180.0),0,0,
+    0,0,1,0,
+    0,0,0,1
+    ];
+
+    let uMVRotY = [
+    +Math.cos(angleY*Math.PI/180.0),0,-Math.sin(angleY*Math.PI/180.0),0,
+    0,1,0,0,
+    +Math.sin(angleY*Math.PI/180.0),0,+Math.cos(angleY*Math.PI/180.0),0,
+    0,0,0,1
+    ];
+
+    let uMVRotX = [
+    1,0,0,0,
+    0,+Math.cos(angleX*Math.PI/180.0),+Math.sin(angleX*Math.PI/180.0),0,
+    0,-Math.sin(angleX*Math.PI/180.0),+Math.cos(angleX*Math.PI/180.0),0,
+    0,0,0,1
+    ];
+
+    let uMVTranslateZ = [
+    1,0,0,0,
+    0,1,0,0,
+    0,0,1,0,
+    0,0,tz,1
+    ];
+
+    let uMVTranslateX = [
+    1,0,0,0,
+    0,1,0,0,
+    0,0,1,0,
+    tx,0,0,1
+    ];
+
+    let uMVTranslateY = [
+    1,0,0,0,
+    0,1,0,0,
+    0,0,1,0,
+    0,ty,0,1
+    ];
+  
+    uMVMatrix = MatrixMul(uMVMatrix,uMVRotZ);
+		uMVMatrix = MatrixMul(uMVMatrix,uMVTranslateZ);
+		
+		
+		uMVMatrix = MatrixMul(uMVMatrix,uMVRotX);
+		uMVMatrix = MatrixMul(uMVMatrix,uMVTranslateX);
+
+		uMVMatrix = MatrixMul(uMVMatrix,uMVRotY);
+		uMVMatrix = MatrixMul(uMVMatrix,uMVTranslateY);
+    
+    //alert(uPMatrix);
+    
+    //Render Scene
+    gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight); 
+    gl.clearColor(1.0,0.0,0.0,1.0); //Wyczyszczenie obrazu kolorem czerwonym
+    gl.clearDepth(1.0);             //Wyczyścienie bufora głebi najdalszym planem
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.useProgram(shaderProgram)   //Użycie przygotowanego programu shaderowego
+    
+    gl.enable(gl.DEPTH_TEST);           // Włączenie testu głębi - obiekty bliższe mają przykrywać obiekty dalsze
+    gl.depthFunc(gl.LEQUAL);            // 
+    
+    gl.uniformMatrix4fv(gl.getUniformLocation(shaderProgram, "uPMatrix"), false, new Float32Array(uPMatrix)); //Wgranie macierzy kamery do pamięci karty graficznej
+    gl.uniformMatrix4fv(gl.getUniformLocation(shaderProgram, "uMVMatrix"), false, new Float32Array(uMVMatrix));
+    
+    gl.enableVertexAttribArray(gl.getAttribLocation(shaderProgram, "aVertexPosition"));  //Przekazanie położenia
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexPositionBuffer);
+    gl.vertexAttribPointer(gl.getAttribLocation(shaderProgram, "aVertexPosition"), vertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+    
+    gl.enableVertexAttribArray(gl.getAttribLocation(shaderProgram, "aVertexColor"));  //Przekazanie kolorów
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexColorBuffer);
+    gl.vertexAttribPointer(gl.getAttribLocation(shaderProgram, "aVertexColor"), vertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+    
+    gl.enableVertexAttribArray(gl.getAttribLocation(shaderProgram, "aVertexCoords"));  //Pass the geometry
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexCoordsBuffer);
+    gl.vertexAttribPointer(gl.getAttribLocation(shaderProgram, "aVertexCoords"), vertexCoordsBuffer.itemSize, gl.FLOAT, false, 0, 0);
+    
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, textureBuffer);
+    gl.uniform1i(gl.getUniformLocation(shaderProgram, "uSampler"), 0);
+    
+    gl.drawArrays(gl.TRIANGLES, 0, vertexPositionBuffer.numItems*vertexPositionBuffer.itemSize); //Faktyczne wywołanie rendrowania
+    
+    setTimeout(Tick,100);
+  }
+function handlekeydown(e)
+{
+ if(e.keyCode==87) angleX=angleX+1.0; //W
+ if(e.keyCode==83) angleX=angleX-1.0; //S
+ if(e.keyCode==68) angleY=angleY+1.0;
+ if(e.keyCode==65) angleY=angleY-1.0;
+ if(e.keyCode==81) angleZ=angleZ+1.0;
+ if(e.keyCode==69) angleZ=angleZ-1.0;
+
+ if(e.keyCode==73){//I
+		tx = tx - Math.sin(angleY*Math.PI/180.0)*0.1;
+		tz = tz + Math.cos(angleY*Math.PI/180.0)*0.1;
+	} 
+	if(e.keyCode==74) {//J
+		//metoda prób i błędów, więc nie wiem, czy dobrze rozumuje
+		//obrót wokół osi OY o kąt angle sprawia, że chcąc sie przemieścić w lewo w stosunku do nowego kierunku na prost muszę się przesunąć o 180-angleY na osi XZ
+		//ale kierunek na wprost i do tyłu(I, K) w nowym układzie odniesienia to samo angleY
+		//cos(pi-a) = -cosa,	cos(pi+a) = cosa,		sin(pi-a) = sina,		sin(pi+a) = -sina
+		tx = tx + Math.cos(angleY*Math.PI/180.0)*0.1;//albo tx - Math.cos((180-angleY)*Math.PI/180.0)*0.1;
+		tz = tz + Math.sin(angleY*Math.PI/180.0)*0.1;
+		
+	 }
+	if(e.keyCode==75) {//K
+		tx = tx + Math.sin(angleY*Math.PI/180.0)*0.1;
+		tz = tz - Math.cos(angleY*Math.PI/180.0)*0.1;
+	 } 
+	 if(e.keyCode==76) {//L
+		tx = tx - Math.cos(angleY*Math.PI/180.0)*0.1;
+		tz = tz - Math.sin(angleY*Math.PI/180.0)*0.1;
+
+		
+	 }
+	if(e.keyCode==85) ty -=0.1; // U
+	if(e.keyCode==79) ty +=0.1; // O
+	
+	console.log("tx: ", tx, "ty: ", ty, "tz: ", tz, "anX: ", angleX, "angY: ", angleY, "angZ: ", angleZ);
+	
+
+ //alert(e.keyCode);
+ //alert(angleX);
+}
+
+
+/*var tempArr=[
+      
+      x,y,z,    x1,y,z,     x1,y,z1,//podstawa, trójkąt dolny
+      x,y,z,    x,y,z1,     x1,y,z1, //podstawa, trójkąt górny
+
+      x,y1,z,    x1,y1,z,     x1,y1,z1,//górna podstawa, trójkąt dolny
+      x,y1,z,    x,y1,z1,     x1,y1,z1, //górna podstawa, trójkąt górny
+
+      x,y,z,    x1,y,z,     x1,y1,z,//przód, trójkąt dolny
+      x,y,z,    x,y1,z,     x1,y1,z,//przód, trójkąt górny
+
+      x,y,z1,    x1,y,z1,     x1,y1,z1,//tył, trójkąt dolny
+      x,y,z1,    x,y1,z1,     x1,y1,z1,//tył, trójkąt górny
+
+      //lewy bok, trójkąt dolny, tak jakbym się patrzyła na lewy prostokąt na wprost
+      x,y,z1,     x,y,z,      x,y1,z,
+      x,y,z1,     x,y1,z1,    x,y1,z,
+
+      //prawy bok
+      x1,y,z1,     x1,y,z,      x1,y1,z, // dolny
+      x1,y,z1,     x1,y1,z1,    x1,y1,z, //gorny
+  ];
+
+  return tempArr;*/
+
+
+  /*//w zdjęciu 1,1 oznacza prawy dolny wierzchołek, zdjecie rozciąga się od 0,0(lewy gorny róg)
+    //Top
+      0.0, 0.0,  1.0, 0.0,  1.0, 1.0, //3 punkty po 2 składowe - U1,V1, U2,V2, U3,V3 - 1 trójkąt
+      0.0, 0.0,  1.0, 1.0,  0.0, 1.0,
+    //Left
+      0.0, 0.0,  1.0, 0.0,  0.0, 1.0, // x
+      0.0, 1.0,  1.0, 0.0,  1.0, 1.0,
+    //Right
+      0.0, 0.0,  1.0, 0.0,  1.0, 1.0,
+      0.0, 0.0,  1.0, 1.0,  0.0, 1.0,
+    //Front
+      
+      1.0, 1.0,  1.0, 0.0,  0.0, 1.0,//dolny trókąt //, rozciągnic zdjęcie do prawego dolnego rogu, prawego górnego i lewego dolnego
+      0.0, 0.0,  0.0, 1.0,  1.0, 0.0, // lewy górny wierzchołek, do lewego dolnego i do prawego górnego
+    //Back
+      0.0, 0.0,  1.0, 0.0,  1.0, 1.0,
+      0.0, 0.0,  1.0, 1.0,  0.0, 1.0,
+    //Bottom
+      0.0, 0.0,  0.0, 1.0,  1.0, 0.0,
+      1.0, 0.0,  0.0, 1.0,  1.0, 1.0,*/
+
+
+</script>
+</head>
+<body onload="startGL()" onkeydown="handlekeydown(event)">
+<canvas id="canvas3D" width="1200" height="480" style="border: solid black 1px"></canvas>
+
+</body>
+</html>
