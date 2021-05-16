@@ -171,7 +171,7 @@ function createNormal(p1x,p1y,p1z,p2x,p2y,p2z,p3x,p3y,p3z) //Wyznaczenie wektora
   return vertexNormal;
 }
 
-function CreateBox(x,y,z,dx,dy,dz)
+function CreateHouse(x,y,z,dx,dy,dz)
 {
   //Opis sceny 3D, położenie punktów w przestrzeni 3D w formacie X,Y,Z 
   let vertexPosition = []; //Każdy punkt 3 składowe - X1,Y1,Z1
@@ -721,7 +721,268 @@ indexes.push(...[30, 127, 153]);
 indexes.push(...[36, 158, 129]);
 indexes.push(...[34, 150, 151]);
 
+  return [indexes, vertexPosition, vertexNormal];
+}
 
+function CreateChurch(x,y,z,dx,dy,dz)
+{
+  //Opis sceny 3D, położenie punktów w przestrzeni 3D w formacie X,Y,Z 
+  let vertexPosition = []; //Każdy punkt 3 składowe - X1,Y1,Z1
+  let vertexNormal = [];
+  let indexes = [];
+  vertexPosition.push(...[0, 0, 0]);
+  vertexPosition.push(...[1.000000, 1.000000, -1.000000]);
+vertexPosition.push(...[1.000000, -1.000000, -1.000000]);
+vertexPosition.push(...[1.000000, 1.000000, 1.000000]);
+vertexPosition.push(...[1.000000, -1.000000, 1.000000]);
+vertexPosition.push(...[-1.000000, 1.000000, -1.000000]);
+vertexPosition.push(...[-1.000000, -1.000000, -1.000000]);
+vertexPosition.push(...[-1.000000, 1.000000, 1.000000]);
+vertexPosition.push(...[-1.000000, -1.000000, 1.000000]);
+vertexPosition.push(...[1.000000, -1.000000, -3.236156]);
+vertexPosition.push(...[-1.000000, -1.000000, -3.236156]);
+vertexPosition.push(...[1.000000, 1.000000, -3.236156]);
+vertexPosition.push(...[-1.000000, 1.000000, -3.236156]);
+vertexPosition.push(...[3.313365, 1.000000, -1.000000]);
+vertexPosition.push(...[3.313365, -1.000000, -1.000000]);
+vertexPosition.push(...[3.313365, 1.000000, 1.000000]);
+vertexPosition.push(...[3.313365, -1.000000, 1.000000]);
+vertexPosition.push(...[-1.000000, -1.000000, 2.808616]);
+vertexPosition.push(...[-1.000000, 1.000000, 2.808616]);
+vertexPosition.push(...[1.000000, 1.000000, 2.808616]);
+vertexPosition.push(...[1.000000, -1.000000, 2.808616]);
+vertexPosition.push(...[-3.294313, -1.000000, -1.000000]);
+vertexPosition.push(...[-3.294313, -1.000000, 1.000000]);
+vertexPosition.push(...[-3.294313, 1.000000, 1.000000]);
+vertexPosition.push(...[-3.294313, 1.000000, -1.000000]);
+vertexPosition.push(...[1.000000, 1.756395, 1.000000]);
+vertexPosition.push(...[-1.000000, 1.756395, 1.000000]);
+vertexPosition.push(...[1.000000, 1.756395, -1.000000]);
+vertexPosition.push(...[-1.000000, 1.756395, -1.000000]);
+vertexPosition.push(...[-0.486978, 5.278443, -0.430496]);
+vertexPosition.push(...[0.486978, 5.278443, -0.430496]);
+vertexPosition.push(...[-0.486978, 5.278443, 0.430496]);
+vertexPosition.push(...[0.486978, 5.278443, 0.430496]);
+vertexPosition.push(...[1.000000, 2.419436, 1.000000]);
+vertexPosition.push(...[0.430496, 2.988940, 0.430496]);
+vertexPosition.push(...[-0.430496, 2.988940, 0.430496]);
+vertexPosition.push(...[-1.000000, 2.419436, 1.000000]);
+vertexPosition.push(...[1.000000, 2.419436, -1.000000]);
+vertexPosition.push(...[0.430496, 2.988940, -0.430496]);
+vertexPosition.push(...[-0.430496, 2.988940, -0.430496]);
+vertexPosition.push(...[-1.000000, 2.419436, -1.000000]);
+vertexPosition.push(...[-0.020825, 6.542980, 0.018410]);
+vertexPosition.push(...[-0.020825, 6.542980, -0.018410]);
+vertexPosition.push(...[0.020825, 6.542980, -0.018410]);
+vertexPosition.push(...[0.020825, 6.542980, 0.018410]);
+vertexPosition.push(...[-0.112196, 5.699977, 0.293127]);
+vertexPosition.push(...[-0.112196, 5.699977, -0.293127]);
+vertexPosition.push(...[-0.112196, 5.899977, 0.227951]);
+vertexPosition.push(...[-0.112196, 5.899977, -0.227951]);
+vertexPosition.push(...[0.087804, 5.699977, 0.293127]);
+vertexPosition.push(...[0.087804, 5.699977, -0.293127]);
+vertexPosition.push(...[0.087804, 5.899977, -0.227951]);
+vertexPosition.push(...[0.087804, 5.899977, 0.227951]);
+vertexPosition.push(...[-0.331586, 5.699977, 0.130422]);
+vertexPosition.push(...[-0.112196, 5.699977, 0.130422]);
+vertexPosition.push(...[0.087804, 5.699977, 0.130422]);
+vertexPosition.push(...[0.331586, 5.699977, 0.130422]);
+vertexPosition.push(...[-0.257859, 5.899977, 0.130422]);
+vertexPosition.push(...[-0.112196, 5.899977, 0.130422]);
+vertexPosition.push(...[0.257859, 5.899977, 0.130422]);
+vertexPosition.push(...[0.087804, 5.899977, 0.130422]);
+vertexPosition.push(...[-0.331586, 5.699977, -0.069578]);
+vertexPosition.push(...[-0.112196, 5.699977, -0.069578]);
+vertexPosition.push(...[0.011540, 5.699977, -0.069578]);
+vertexPosition.push(...[0.087804, 5.699977, -0.069578]);
+vertexPosition.push(...[0.331586, 5.699977, -0.069578]);
+vertexPosition.push(...[-0.257859, 5.899977, -0.069578]);
+vertexPosition.push(...[-0.112196, 5.899977, -0.069578]);
+vertexPosition.push(...[-0.042719, 5.899977, -0.069578]);
+vertexPosition.push(...[0.087804, 5.899977, -0.069578]);
+vertexPosition.push(...[0.257859, 5.899977, -0.069578]);
+vertexPosition.push(...[-0.112196, 5.699977, 0.025422]);
+vertexPosition.push(...[0.087804, 5.899977, 0.025422]);
+vertexPosition.push(...[-0.454840, 3.975713, 0.116458]);
+vertexPosition.push(...[0.454840, 3.975713, 0.116458]);
+vertexPosition.push(...[0.459774, 4.175713, 0.116458]);
+vertexPosition.push(...[-0.459774, 4.175713, 0.116458]);
+vertexPosition.push(...[0.454840, 3.975713, -0.083542]);
+vertexPosition.push(...[-0.454840, 3.975713, -0.083542]);
+vertexPosition.push(...[-0.459774, 4.175713, -0.083542]);
+vertexPosition.push(...[0.459774, 4.175713, -0.083542]);
+indexes.push(...[5, 27, 1]);
+indexes.push(...[4, 17, 8]);
+indexes.push(...[8, 21, 6]);
+indexes.push(...[2, 8, 6]);
+indexes.push(...[4, 15, 3]);
+indexes.push(...[6, 9, 2]);
+indexes.push(...[12, 9, 10]);
+indexes.push(...[1, 12, 5]);
+indexes.push(...[2, 11, 1]);
+indexes.push(...[5, 10, 6]);
+indexes.push(...[13, 16, 14]);
+indexes.push(...[1, 14, 2]);
+indexes.push(...[2, 16, 4]);
+indexes.push(...[3, 13, 1]);
+indexes.push(...[19, 17, 20]);
+indexes.push(...[7, 19, 3]);
+indexes.push(...[3, 20, 4]);
+indexes.push(...[8, 18, 7]);
+indexes.push(...[23, 21, 22]);
+indexes.push(...[5, 23, 7]);
+indexes.push(...[6, 24, 5]);
+indexes.push(...[7, 22, 8]);
+indexes.push(...[26, 40, 28]);
+indexes.push(...[3, 26, 7]);
+indexes.push(...[7, 28, 5]);
+indexes.push(...[1, 25, 3]);
+indexes.push(...[27, 33, 25]);
+indexes.push(...[28, 37, 27]);
+indexes.push(...[35, 33, 34]);
+indexes.push(...[34, 37, 38]);
+indexes.push(...[39, 36, 35]);
+indexes.push(...[38, 40, 39]);
+indexes.push(...[25, 36, 26]);
+indexes.push(...[34, 31, 35]);
+indexes.push(...[39, 30, 38]);
+indexes.push(...[42, 44, 43]);
+indexes.push(...[31, 49, 45]);
+indexes.push(...[41, 47, 52]);
+indexes.push(...[43, 30, 51]);
+indexes.push(...[50, 29, 46]);
+indexes.push(...[55, 59, 56]);
+indexes.push(...[57, 54, 53]);
+indexes.push(...[66, 62, 67]);
+indexes.push(...[64, 70, 69]);
+indexes.push(...[56, 64, 55]);
+indexes.push(...[53, 71, 61]);
+indexes.push(...[59, 60, 72]);
+indexes.push(...[57, 67, 58]);
+indexes.push(...[32, 65, 56]);
+indexes.push(...[44, 59, 70]);
+indexes.push(...[42, 29, 66]);
+indexes.push(...[61, 31, 53]);
+indexes.push(...[47, 54, 58]);
+indexes.push(...[62, 48, 67]);
+indexes.push(...[51, 64, 69]);
+indexes.push(...[55, 52, 60]);
+indexes.push(...[45, 55, 54]);
+indexes.push(...[46, 63, 50]);
+indexes.push(...[55, 64, 63]);
+indexes.push(...[63, 62, 71]);
+indexes.push(...[52, 58, 60]);
+indexes.push(...[51, 69, 68]);
+indexes.push(...[72, 68, 69]);
+indexes.push(...[58, 68, 72]);
+indexes.push(...[75, 73, 76]);
+indexes.push(...[77, 79, 78]);
+indexes.push(...[78, 74, 77]);
+indexes.push(...[80, 76, 79]);
+indexes.push(...[35, 78, 39]);
+indexes.push(...[79, 76, 31]);
+indexes.push(...[34, 77, 74]);
+indexes.push(...[30, 32, 80]);
+indexes.push(...[5, 28, 27]);
+indexes.push(...[4, 20, 17]);
+indexes.push(...[8, 22, 21]);
+indexes.push(...[2, 4, 8]);
+indexes.push(...[4, 16, 15]);
+indexes.push(...[6, 10, 9]);
+indexes.push(...[12, 11, 9]);
+indexes.push(...[1, 11, 12]);
+indexes.push(...[2, 9, 11]);
+indexes.push(...[5, 12, 10]);
+indexes.push(...[13, 15, 16]);
+indexes.push(...[1, 13, 14]);
+indexes.push(...[2, 14, 16]);
+indexes.push(...[3, 15, 13]);
+indexes.push(...[19, 18, 17]);
+indexes.push(...[7, 18, 19]);
+indexes.push(...[3, 19, 20]);
+indexes.push(...[8, 17, 18]);
+indexes.push(...[23, 24, 21]);
+indexes.push(...[5, 24, 23]);
+indexes.push(...[6, 21, 24]);
+indexes.push(...[7, 23, 22]);
+indexes.push(...[26, 36, 40]);
+indexes.push(...[3, 25, 26]);
+indexes.push(...[7, 26, 28]);
+indexes.push(...[1, 27, 25]);
+indexes.push(...[27, 37, 33]);
+indexes.push(...[28, 40, 37]);
+indexes.push(...[35, 36, 33]);
+indexes.push(...[34, 33, 37]);
+indexes.push(...[39, 40, 36]);
+indexes.push(...[38, 37, 40]);
+indexes.push(...[25, 33, 36]);
+indexes.push(...[34, 32, 31]);
+indexes.push(...[39, 29, 30]);
+indexes.push(...[42, 41, 44]);
+indexes.push(...[31, 32, 49]);
+indexes.push(...[32, 44, 52]);
+indexes.push(...[44, 41, 52]);
+indexes.push(...[31, 45, 47]);
+indexes.push(...[52, 49, 32]);
+indexes.push(...[41, 31, 47]);
+indexes.push(...[29, 42, 48]);
+indexes.push(...[42, 43, 51]);
+indexes.push(...[48, 42, 51]);
+indexes.push(...[30, 50, 51]);
+indexes.push(...[48, 46, 29]);
+indexes.push(...[50, 30, 29]);
+indexes.push(...[55, 60, 59]);
+indexes.push(...[57, 58, 54]);
+indexes.push(...[66, 61, 62]);
+indexes.push(...[64, 65, 70]);
+indexes.push(...[56, 65, 64]);
+indexes.push(...[54, 71, 53]);
+indexes.push(...[71, 62, 61]);
+indexes.push(...[72, 69, 70]);
+indexes.push(...[70, 59, 72]);
+indexes.push(...[57, 66, 67]);
+indexes.push(...[32, 30, 65]);
+indexes.push(...[30, 43, 70]);
+indexes.push(...[43, 44, 70]);
+indexes.push(...[32, 56, 59]);
+indexes.push(...[70, 65, 30]);
+indexes.push(...[44, 32, 59]);
+indexes.push(...[31, 41, 57]);
+indexes.push(...[41, 42, 66]);
+indexes.push(...[57, 41, 66]);
+indexes.push(...[29, 61, 66]);
+indexes.push(...[57, 53, 31]);
+indexes.push(...[61, 29, 31]);
+indexes.push(...[47, 45, 54]);
+indexes.push(...[62, 46, 48]);
+indexes.push(...[51, 50, 64]);
+indexes.push(...[55, 49, 52]);
+indexes.push(...[45, 49, 55]);
+indexes.push(...[62, 63, 46]);
+indexes.push(...[63, 64, 50]);
+indexes.push(...[63, 71, 55]);
+indexes.push(...[71, 54, 55]);
+indexes.push(...[52, 47, 58]);
+indexes.push(...[67, 48, 68]);
+indexes.push(...[48, 51, 68]);
+indexes.push(...[72, 60, 58]);
+indexes.push(...[58, 67, 68]);
+indexes.push(...[75, 74, 73]);
+indexes.push(...[77, 80, 79]);
+indexes.push(...[78, 73, 74]);
+indexes.push(...[80, 75, 76]);
+indexes.push(...[35, 73, 78]);
+indexes.push(...[76, 73, 35]);
+indexes.push(...[29, 39, 79]);
+indexes.push(...[39, 78, 79]);
+indexes.push(...[76, 35, 31]);
+indexes.push(...[29, 79, 31]);
+indexes.push(...[34, 38, 77]);
+indexes.push(...[80, 77, 38]);
+indexes.push(...[32, 34, 75]);
+indexes.push(...[34, 74, 75]);
+indexes.push(...[80, 38, 30]);
+indexes.push(...[32, 75, 80]);
 
   return [indexes, vertexPosition, vertexNormal];
 }
@@ -794,9 +1055,15 @@ function startGL()
   let vertexPosition; //3 punkty po 3 składowe - X1,Y1,Z1, X2,Y2,Z2, X3,Y3,Z3 - 1 trójkąt
   let vertexNormal;
   let indexes;
+
+  let vertexPosition2; //3 punkty po 3 składowe - X1,Y1,Z1, X2,Y2,Z2, X3,Y3,Z3 - 1 trójkąt
+  let vertexNormal2;
+  let indexes2;
+
+  [indexes2, vertexPosition2, vertexNormal2] = CreateHouse(0,0,0,1,1,1);
   
   //[vertexPosition, vertexColor, vertexCoords, vertexNormal] = CreateShpere(0,0,0,2, 6, 12); 
-  [indexes, vertexPosition, vertexNormal] = CreateBox(0,0,0,1,1,1);
+  [indexes, vertexPosition, vertexNormal] = CreateChurch(0,0,0,1,1,1);
   
   vertexPositionBuffer = gl.createBuffer(); //Stworzenie tablicy w pamieci karty graficznej
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexPositionBuffer);
@@ -814,6 +1081,24 @@ function startGL()
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexes), gl.STATIC_DRAW);
   indexBuffer.numItems = indexes.length;
+
+  //kosciol
+  vertexPositionBuffer2 = gl.createBuffer(); //Stworzenie tablicy w pamieci karty graficznej
+  gl.bindBuffer(gl.ARRAY_BUFFER, vertexPositionBuffer2);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexPosition2), gl.STATIC_DRAW);
+  vertexPositionBuffer2.itemSize = 3; //zdefiniowanie liczby współrzednych per wierzchołek
+  vertexPositionBuffer2.numItems = vertexPosition2.length/9; //Zdefinoiowanie liczby trójkątów w naszym buforze
+  
+  vertexNormalBuffer2 = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, vertexNormalBuffer2);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexNormal2), gl.STATIC_DRAW);
+  vertexNormalBuffer2.itemSize = 3;
+  vertexNormalBuffer2.numItems = vertexNormal2.length/9;
+  
+  indexBuffer2 = gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer2);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexes2), gl.STATIC_DRAW);
+  indexBuffer2.numItems = indexes2.length;
 
   //Macierze opisujące położenie wirtualnej kamery w przestrzenie 3D
   let aspect = gl.viewportWidth/gl.viewportHeight;
@@ -895,7 +1180,7 @@ function Tick()
   uMMatrix2 = MatrixMul(uMMatrix2,CreateRotationZMatrix(Object2AngleZ));
   uMMatrix2 = MatrixMul(uMMatrix2,CreateTranslationMatrix(Object2PositionX,Object2PositionY,Object2PositionZ));
   
-  /*uMMatrix2 = MatrixMul(uMMatrix2,CreateTranslationMatrix(Object1Sizedx,0.0,0.0)); 
+  uMMatrix2 = MatrixMul(uMMatrix2,CreateTranslationMatrix(Object1Sizedx,0.0,0.0)); 
   uMMatrix2 = MatrixMul(uMMatrix2,CreateRotationZMatrix(Object1AngleZ));
   uMMatrix2 = MatrixMul(uMMatrix2,CreateTranslationMatrix(Object1PositionX,Object1PositionY,Object1PositionZ));
   
@@ -913,7 +1198,7 @@ function Tick()
   uMMatrix3 = MatrixMul(uMMatrix3,CreateTranslationMatrix(Object1PositionX,Object1PositionY,Object1PositionZ));
   
   uMMatrix0 = MatrixMul(uMMatrix0,CreateScaleMatrix(LightSize,LightSize,LightSize));
-  uMMatrix0 = MatrixMul(uMMatrix0,CreateTranslationMatrix(LightPositionX,LightPositionY,LightPositionZ));*/
+  uMMatrix0 = MatrixMul(uMMatrix0,CreateTranslationMatrix(LightPositionX,LightPositionY,LightPositionZ));
   
   //alert(uPMatrix);
   
@@ -941,6 +1226,18 @@ function Tick()
   gl.vertexAttribPointer(gl.getAttribLocation(shaderProgram, "aVertexNormal"), vertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
   
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+
+
+  //kosciol
+  /*gl.bindBuffer(gl.ARRAY_BUFFER, vertexPositionBuffer2);
+  gl.vertexAttribPointer(gl.getAttribLocation(shaderProgram, "aVertexPosition"), vertexPositionBuffer2.itemSize, gl.FLOAT, false, 0, 0);
+  
+  gl.enableVertexAttribArray(gl.getAttribLocation(shaderProgram, "aVertexNormal"));  //Przekazywanie wektorów normalnych
+  gl.bindBuffer(gl.ARRAY_BUFFER, vertexNormalBuffer2);
+  gl.vertexAttribPointer(gl.getAttribLocation(shaderProgram, "aVertexNormal"), vertexNormalBuffer2.itemSize, gl.FLOAT, false, 0, 0);
+  
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer2);*/
+
   
   
   gl.uniformMatrix4fv(gl.getUniformLocation(shaderProgram, "uMMatrix"), false, new Float32Array(uMMatrix1));
